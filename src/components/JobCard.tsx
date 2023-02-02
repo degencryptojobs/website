@@ -15,7 +15,7 @@ export default function JobCard({ job }: { job: Job }) {
       return (
         <div
           key={`tag-${job.id}-${idx}`}
-          className="leading-sm mr-2 inline-flex gap-2 rounded-full bg-orange-200 px-3 py-1 text-xs font-bold uppercase text-orange-700"
+          className="rounded-full bg-orange-200 px-3 py-1 text-xs font-bold uppercase text-orange-700"
         >
           {tag}
         </div>
@@ -25,43 +25,46 @@ export default function JobCard({ job }: { job: Job }) {
 
   return (
     <>
-      <Link href={`/jobs/${urlString}`}>
-        <div className="flex w-full flex-col gap-4 rounded-lg bg-white p-4 shadow-md">
-          <h3 className="text-xl font-bold">{title}</h3>
-          <div>
-            {logoUrl && (
-              <div className="center flex flex-col gap-2">
-                <Image
-                  src={logoUrl}
-                  width="240"
-                  height="240"
-                  className="h-20 w-20"
-                  alt="logo"
-                />
+      <Link href={`/jobs${urlString}`}>
+        <div className="flex w-full flex-col gap-4 rounded-lg bg-white p-4 shadow-md active:bg-slate-300">
+          <div className="flex w-full flex-col">
+            <div className="flex items-center">
+              {logoUrl && (
+                <div className="mr-4 w-16">
+                  <Image
+                    src={logoUrl}
+                    width="0"
+                    height="0"
+                    sizes="100vw"
+                    className="h-auto w-full"
+                    alt="logo"
+                  />
+                </div>
+              )}
+              <h3 className="font-bold md:text-xl">{title}</h3>
+            </div>
+            <div className="mt-6 mb-2 flex gap-2">
+              <div className="flex w-1/3 flex-col gap-1">
+                <span className="text-sm font-semibold text-gray-500">
+                  Company
+                </span>
+                <span className="text-sm">{company}</span>
               </div>
-            )}
+              <div className="flex w-1/3 flex-col gap-1">
+                <span className="text-sm font-semibold text-gray-500">
+                  Location
+                </span>
+                <span className="text-sm">{location}</span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-sm font-semibold text-gray-500">
+                  Salary range
+                </span>
+                <span className="text-sm">{salary}</span>
+              </div>
+            </div>
           </div>
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-col gap-1">
-              <span className="text-sm font-semibold text-gray-500">
-                Company
-              </span>
-              <span className="text-sm">{company}</span>
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-sm font-semibold text-gray-500">
-                Location
-              </span>
-              <span className="text-sm">{location}</span>
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-sm font-semibold text-gray-500">
-                Salary range
-              </span>
-              <span className="text-sm">{salary}</span>
-            </div>
-            <div className="">{getTags()}</div>
-          </div>
+          <div className="flex flex-wrap gap-2">{getTags()}</div>
         </div>
       </Link>
     </>

@@ -6,9 +6,11 @@ import { base } from "../../airtable";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
 export const airtableRouter = createTRPCRouter({
-  getJobs: publicProcedure.query(async ({ input }) => {
+  getJobs: publicProcedure.query(async () => {
     const table = base("Jobs Copy");
-    const results = await table.select().firstPage();
+    const results = await table
+      .select({ sort: [{ field: "Company (from Company)", direction: "asc" }] })
+      .all();
     const jobs = results.map((result) => {
       const logos = result.fields["Logo (from Company)"] as Attachment[];
       const logoUrl = logos && logos[0] ? logos[0].url : "";
@@ -25,7 +27,6 @@ export const airtableRouter = createTRPCRouter({
       };
       return job as Job;
     });
-    console.log(jobs);
     return jobs;
   }),
   getJobsBySearchString: publicProcedure
@@ -47,8 +48,6 @@ export const airtableRouter = createTRPCRouter({
             )`,
         })
         .firstPage();
-
-      console.log(results);
       const jobs = results.map((result) => {
         const job = {
           id: result.id,
@@ -82,7 +81,7 @@ export const airtableRouter = createTRPCRouter({
       return {
         id: result.id,
         title: result.fields["Title"] as string,
-        company: result.fields["Company (from Company)"] as string,
+        company: result.fields["Company (from Company)"] as string[],
         logoUrl: logoUrl,
         location: result.fields["Location"] as string,
         salary: result.fields["Salary"] as string,

@@ -1,3 +1,4 @@
+import { LoadingSpinner } from "@/components/LoadSpinner";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { api } from "../../utils/api";
@@ -10,11 +11,15 @@ export default function JobPage() {
 
   const jobSection = () => {
     if (!job) {
-      return <div>Loading...</div>;
+      return (
+        <div>
+          <LoadingSpinner />
+        </div>
+      );
     } else {
       return (
-        <>
-          <h3 className="text-xl font-bold">{job.title}</h3>
+        <div>
+          <h3 className="pb-4 text-xl font-bold">{job.title}</h3>
           {job.logoUrl && (
             <div className="flex items-center gap-4">
               <Image
@@ -26,7 +31,7 @@ export default function JobPage() {
               />
             </div>
           )}
-          <div className="flex flex-col gap-2">
+          <div className="my-4 flex flex-col gap-2">
             <div className="flex flex-col gap-1">
               <span className="text-md font-semibold text-gray-500">
                 Company
@@ -52,13 +57,13 @@ export default function JobPage() {
             </span>
             <span className="text-md">{job.description}</span>
           </div>
-        </>
+        </div>
       );
     }
   };
 
   return (
-    <div className="container flex flex-col gap-4 rounded-lg bg-white p-4">
+    <div className="container my-4 flex flex-col gap-4 rounded-lg bg-white p-4">
       {jobSection()}
     </div>
   );

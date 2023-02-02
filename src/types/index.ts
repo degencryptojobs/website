@@ -1,7 +1,7 @@
 export type Job = {
   id: string;
   title: string;
-  company: string;
+  company: string[];
   logoUrl?: string;
   location: string;
   salary: string;
