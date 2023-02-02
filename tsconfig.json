@@ -10,7 +10,7 @@
       "esnext"
     ],
     "module": "esnext",
-    "target": "es5",
+    "target": "es2017",
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
