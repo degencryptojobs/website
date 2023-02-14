@@ -6,9 +6,10 @@ import { api } from "../../utils/api";
 
 export default function JobPage() {
   const router = useRouter();
-  const jobId = router.query.jobId as string;
+  const prettyUrl = router.query.jobId as string;
 
-  const { data: job } = api.airtable.getJobById.useQuery({ jobId });
+  const { data: job } = api.jobs.getByPrettyUrl.useQuery({ prettyUrl });
+  const { data: company } = api.companies.get.useQuery({ companyId: job?.company || '' });
 
   const jobSection = () => {
     if (!job) {
@@ -19,12 +20,12 @@ export default function JobPage() {
       );
     } else {
       return (
-        <div>
+        <div className="mt-10">
           <h3 className="py-4 text-xl font-bold">{job.title}</h3>
-          {job.logoUrl && (
+          {company?.logo.url && (
             <div className="flex items-center gap-4">
               <Image
-                src={job.logoUrl}
+                src={company?.logo.url}
                 width="240"
                 height="240"
                 alt="logo"
@@ -38,7 +39,7 @@ export default function JobPage() {
                 <span className="text-md font-semibold text-gray-400">
                   Company
                 </span>
-                <span className="text-md">{job.company}</span>
+                <span className="text-md">{company && (company.name)}</span>
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-md font-semibold text-gray-400">

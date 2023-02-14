@@ -4,10 +4,10 @@ import { LoadingSpinner } from "@/components/LoadSpinner";
 import { SearchBar } from "@/components/SearchBar";
 import { SocialProofs } from "@/components/SocialProofs";
 import type { Job } from "@/types";
+import { api } from "@/utils/api";
 import { type NextPage } from "next";
-import type { FormEvent } from "react";
 import { useRef, useState } from "react";
-import { api } from "../utils/api";
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 const searchTagList = [
   "Remote",
@@ -34,31 +34,30 @@ const Home: NextPage = () => {
   const searchRef = useRef<HTMLInputElement>(null);
   const [searchJobs, setSearchJobs] = useState<Job[]>([]);
   const [searchTag, setSearchTag] = useState<string>("");
+  const [moreJobs, setMoreJobs] = useState<Job[]>([]);
 
-  const { data: jobs } = api.airtable.getJobs.useQuery();
-
-  const handleSearchSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (
+  const { data: jobs } = api.jobs.getFirstPage.useQuery();
+  const jobsMutation = api.jobs.getPage.useMutation({
+    onSuccess: (data) => {
+      setMoreJobs([...moreJobs, ...data]);
+    }
+  })
+  const jobSearchMutation = api.jobs.getJobsBySearchString.useMutation({
+    onSuccess: (data) => {if (
       searchRef.current!.value &&
       searchRef.current!.value.length > 0 &&
       jobs
     ) {
-      const filteredJobs = jobs.filter((job) => {
-        const { title, company, location, tagString } = job;
-        const searchValue = searchRef.current!.value.toLowerCase();
-        return (
-          title.toLowerCase().includes(searchValue) ||
-          company[0].toLowerCase().includes(searchValue) ||
-          location.toLowerCase().includes(searchValue) ||
-          tagString?.toLowerCase().includes(searchValue)
-        );
-      });
-      setSearchJobs(filteredJobs);
-      return;
+      setSearchJobs(data);
     }
     setSearchJobs([]);
-  };
+    }
+  });
+  const jobTagMutation = api.jobs.getJobsByTag.useMutation({
+    onSuccess: (data) => {
+      setSearchJobs(data);
+    }
+  });
 
   return (
     <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
@@ -66,7 +65,9 @@ const Home: NextPage = () => {
       {jobs && <SocialProofs jobs={jobs} />}
       <SearchBar
         searchRef={searchRef}
-        handleSearchSubmit={handleSearchSubmit}
+        handleSearchSubmit={() => jobSearchMutation.mutate({
+          searchString: searchRef.current!.value,
+        })}
       />
       <div className="flex flex-wrap items-center justify-center gap-2 px-4">
         {searchTagList.map((tag) => {
@@ -82,12 +83,8 @@ const Home: NextPage = () => {
                   return;
                 }
                 if (jobs) {
-                  const filteredJobs = jobs.filter((job) => {
-                    const { tagString } = job;
-                    return tagString?.toLowerCase().includes(tag.toLowerCase());
-                  });
                   setSearchTag(tag);
-                  setSearchJobs(filteredJobs);
+                  jobTagMutation.mutate({ tag })
                   return;
                 }
                 setSearchJobs([]);
@@ -120,6 +117,19 @@ const Home: NextPage = () => {
               <JobCard job={job} />
             </div>
           ))}
+          <InfiniteScroll
+            dataLength={moreJobs.length}
+            next={() => jobsMutation.mutate({ start: moreJobs.length + 50})}
+            hasMore={true || false}
+            loader={<div className="loader" key={0}>Loading ...</div>}
+            className="flex flex-col items-center justify-center gap-6"
+          >
+            {moreJobs.map((job) => (
+              <div key={job.id} className="w-full">
+                <JobCard job={job} />
+              </div>
+            ))}
+          </InfiniteScroll>
         </div>
       )}
     </div>

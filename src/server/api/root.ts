@@ -1,4 +1,5 @@
-import { airtableRouter } from "./routers/airtable";
+import { companiesRouter } from "./routers/companies";
+import { jobsRouter } from "./routers/jobs";
 import { createTRPCRouter } from "./trpc";
 
 /**
@@ -7,7 +8,8 @@ import { createTRPCRouter } from "./trpc";
  * All routers added in /api/routers should be manually added here
  */
 export const appRouter = createTRPCRouter({
-  airtable: airtableRouter,
+  jobs: jobsRouter,
+  companies: companiesRouter,
 });
 
 // export type definition of API

@@ -1,3 +1,4 @@
+import { api } from "@/utils/api";
 import Image from "next/image";
 import Link from "next/link";
 import type { Job } from "../types";
@@ -19,21 +20,22 @@ const getFirstLetter = (str: string) => {
 export default function JobCard({ job }: { job: Job }) {
   const {
     title,
-    company,
+    company: companyId,
     date,
-    logoUrl,
     location,
     salary,
-    tagString,
-    urlString,
+    tags,
+    pretty_url,
   } = job;
 
+  const {data: company} = api.companies.get.useQuery({companyId})
+
   const getTags = (limit = 0) => {
-    if (!tagString) {
+    if (!tags) {
       return null;
     }
-    const tags = tagString.split(", ");
-    return tags.map((tag: string, idx: number) => {
+    const tagsArray = tags.split(", ");
+    return tagsArray.map((tag: string, idx: number) => {
       if (limit > 0 && idx >= limit) {
         return null;
       }
@@ -50,14 +52,14 @@ export default function JobCard({ job }: { job: Job }) {
 
   return (
     <>
-      <Link href={`/jobs${urlString}`}>
+      <Link href={`/jobs${pretty_url}`}>
         <div className="w-full flex-col gap-4 rounded-lg bg-gray-600 p-4 text-white shadow-md active:bg-slate-300">
           <div className="flex w-full flex-col">
             <div className="flex items-center">
-              {logoUrl && (
+              {company && company.logo && (
                 <div className="mr-4 w-20 bg-white">
                   <Image
-                    src={logoUrl}
+                    src={company.logo.thumbnails.large.url}
                     width="0"
                     height="0"
                     sizes="100vw"
@@ -66,9 +68,9 @@ export default function JobCard({ job }: { job: Job }) {
                   />
                 </div>
               )}
-              {!logoUrl && (
+              {company && !company.logo && (
                 <div className="mr-4 flex h-20 w-20 items-center justify-center rounded-full bg-blue-800 text-center text-5xl font-bold text-white">
-                  {getFirstLetter(company[0])}
+                  {company && (getFirstLetter(company.name))}
                 </div>
               )}
               <h3 className="font-bold md:text-xl">{title}</h3>
@@ -78,7 +80,7 @@ export default function JobCard({ job }: { job: Job }) {
                 <span className="text-sm font-semibold text-gray-300">
                   Company
                 </span>
-                <span className="text-sm">{company}</span>
+                <span className="text-sm">{company && (company.name)}</span>
               </div>
               <div className="flex w-1/3 flex-col gap-1">
                 <span className="text-sm font-semibold text-gray-300">
