@@ -59,7 +59,7 @@ export default function JobCard({ job }: { job: Job }) {
               {company && company.logo && (
                 <div className="mr-4 w-20 bg-white">
                   <Image
-                    src={company.logo.thumbnails.large.url}
+                    src={company.logo.url}
                     width="0"
                     height="0"
                     sizes="100vw"
